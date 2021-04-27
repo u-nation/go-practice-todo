@@ -1,0 +1,54 @@
+version: '3.7'
+
+services:
+  app:
+    container_name: go-practice-todo-app
+    build:
+      context: .
+      target: develop
+    command: air
+    volumes:
+      - ./:/go/src/github.com/u-nation/go-practice-todo:cached # https://docs.docker.com/docker-for-mac/
+      - $GOPATH/pkg/mod:/go/pkg/mod
+    ports:
+      - 5000:5000
+    env_file: .env
+    depends_on:
+      - mysql
+      - minio
+      - redis
+
+  mysql:
+    container_name: go-practice-todo-mysql
+    image: mysql:5.7
+    volumes:
+      - ./.docker/db/mysql_data:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/my.cnf
+    ports:
+      - 3306:3306
+    environment:
+      - "MYSQL_DATABASE=${DB_NAME}"
+      - "MYSQL_USER=${DB_WRITE_USER}"
+      - "MYSQL_PASSWORD=${DB_WRITE_PASSWORD}"
+      - "MYSQL_ALLOW_EMPTY_PASSWORD=yes"
+
+  minio:
+    container_name: go-practice-todo-minio
+    image: minio/minio
+    volumes:
+      - .docker/minio:/data
+    entrypoint: sh
+    command:
+      -c "
+      mkdir -p /data/todo-local;
+      /usr/bin/minio server /data;
+      "
+    ports:
+      - 19000:9000
+    environment:
+      - MINIO_ACCESS_KEY=localdummy
+      - MINIO_SECRET_KEY=localdummy
+  redis:
+    image: redis:alpine
+    ports:
+      - 6379:6379

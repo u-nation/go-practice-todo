@@ -1,0 +1,258 @@
+openapi: 3.0.0
+info:
+  title: todo
+  version: "1.0"
+servers:
+  - url: "http://localhost:3000"
+
+paths:
+  /todo:
+    get:
+      tags:
+        - todo
+      summary: Todoリスト取得
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todos"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailableError"
+
+    post:
+      tags:
+        - todo
+      summary: Todo作成
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TodoPostParameter"
+      responses:
+        "201":
+          description: Created
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailableError"
+
+  /todo/{todoId}:
+    get:
+      tags:
+        - todo
+      summary: Todo取得
+      parameters:
+        - $ref: "#/components/parameters/todoId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailableError"
+
+    put:
+      tags:
+        - todo
+      summary: Todo更新
+      parameters:
+        - $ref: "#/components/parameters/todoId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TodoPutParameter"
+      responses:
+        "204":
+          description: No Content
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailableError"
+
+    delete:
+      tags:
+        - todo
+      summary: Todo削除
+      parameters:
+        - $ref: "#/components/parameters/todoId"
+      responses:
+        "204":
+          description: No Content
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailableError"
+
+components:
+  parameters:
+    todoId:
+      name: todoId
+      in: path
+      required: true
+      description: TodoID
+      schema:
+        type: string
+
+  responses:
+    BadRequestError:
+      description: BadRequest
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    NotFoundError:
+      description: NotFound
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    InternalServerError:
+      description: InternalServerError
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    ServiceUnavailableError:
+      description: ServiceUnavailable
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  schemas:
+    TodoPostParameter:
+      type: object
+      description: Todo
+      required:
+        - title
+        - deadline
+      properties:
+        title:
+          type: string
+          description: Todoタイトル
+        deadline:
+          type: string
+          format: date
+          description: 締切日
+          example: "2020-01-01"
+
+    TodoPutParameter:
+      type: object
+      description: Todo
+      required:
+        - title
+        - isDone
+        - deadline
+      properties:
+        title:
+          type: string
+          description: Todoタイトル
+        isDone:
+          type: boolean
+          description: 完了かどうか
+        deadline:
+          type: string
+          format: date
+          description: 締切日
+          example: "2020-01-01"
+
+    Todos:
+      description: Todoリスト
+      type: object
+      required:
+        - values
+      properties:
+        values:
+          type: array
+          items:
+            $ref: "#/components/schemas/Todo"
+
+    Todo:
+      type: object
+      description: Todo
+      required:
+        - id
+        - title
+        - isDone
+        - deadline
+      properties:
+        id:
+          type: string
+          description: TodoID
+        title:
+          type: string
+          description: Todoタイトル
+        isDone:
+          type: boolean
+          description: 完了かどうか
+        deadline:
+          type: string
+          format: date
+          description: 締切日
+          example: "2020-01-01"
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        validationInfo:
+          type: array
+          description: バリデーション情報の配列
+          items:
+            $ref: "#/components/schemas/ValidationInfo"
+
+    ValidationInfo:
+      type: object
+      required:
+        - field
+        - rejectedValue
+        - message
+      properties:
+        field:
+          type: string
+          description: 対象のフィールド名
+        rejectedValue:
+          type: string
+          description: 不正な入力値
+        message:
+          type: string
+          description: バリデーションメッセージ
