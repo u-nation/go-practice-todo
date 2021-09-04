@@ -23,7 +23,7 @@ RUN go mod download
 RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.35.2 && \
     curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migrate.linux-amd64.tar.gz | tar xvz -C /usr/bin && \
     mv /usr/bin/migrate.linux-amd64 /usr/bin/migrate && \
-    go install \
+    go get \
         golang.org/x/tools/cmd/godoc \
         github.com/cosmtrek/air \
         github.com/google/wire/cmd/wire && \

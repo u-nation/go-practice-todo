@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/u-nation/go-practice-todo/config"
 	"github.com/u-nation/go-practice-todo/pkg/infrastructure/db"
-	"github.com/u-nation/go-practice-todo/pkg/logger"
 	"golang.org/x/xerrors"
 )
 
@@ -14,10 +13,10 @@ func main() {
 		panic(err)
 	}
 
-	if err := logger.NewLogger(apiConfig.AppName, true); err != nil {
+	if err := setupLogger(apiConfig); err != nil {
 		panic(err)
 	}
-
+	
 	server, err := initialize(apiConfig)
 	if err != nil {
 		fmt.Println(xerrors.Errorf("failed to initialize: %w", err))
